@@ -7,6 +7,7 @@ import com.sami.tradingchallengetracker.data.ChallengeEntity
 import com.sami.tradingchallengetracker.data.TradeEntity
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Locale
 
 object PdfExporter {
 
