@@ -1,0 +1,63 @@
+{
+  "entities": {
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Group chat message for the 20 authorized traders in دفعة الرحلة إلى 3000$",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "integer" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "storagePath": { "type": "string" },
+        "timestamp": { "type": "integer" }
+      },
+      "required": ["id", "senderId", "senderName", "timestamp"]
+    },
+    "MediaFile": {
+      "title": "MediaFile",
+      "description": "Cloud image storage object for chat and trade attachments",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "dataUrl": { "type": "string" },
+        "folder": { "type": "string" },
+        "uploaderId": { "type": "integer" },
+        "createdAt": { "type": "integer" }
+      },
+      "required": ["id", "dataUrl", "createdAt"]
+    },
+    "UserChallengeData": {
+      "title": "UserChallengeData",
+      "description": "Permanent per-user cloud data including active challenge, settings, trade counts, trades, and 150 milestones",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "integer" },
+        "username": { "type": "string" },
+        "challenge": { "type": "object" },
+        "completedTradesCount": { "type": "integer" },
+        "failedTradesCount": { "type": "integer" },
+        "remainingTradesCount": { "type": "integer" },
+        "trades": { "type": "array" },
+        "milestones": { "type": "array" },
+        "updatedAt": { "type": "integer" }
+      },
+      "required": ["userId", "challenge", "trades", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/chat_messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ChatMessage" },
+      "description": "Real-time group chat messages automatically purged after 48 hours"
+    },
+    "/media_files/{mediaId}": {
+      "schema": { "$ref": "#/entities/MediaFile" },
+      "description": "Cloud storage for uploaded chat and trade images"
+    },
+    "/user_challenges/{userId}": {
+      "schema": { "$ref": "#/entities/UserChallengeData" },
+      "description": "Permanent per-user isolated trading challenge, settings, trades, and 150 milestones"
+    }
+  }
+}
