@@ -3,6 +3,7 @@ package com.sami.tradingchallengetracker.data
 import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
+import java.util.Locale
 
 class TradingRepository(private val db: AppDatabase) {
 
@@ -20,30 +21,37 @@ class TradingRepository(private val db: AppDatabase) {
         milestoneDao.getMilestonesFlow(challengeId)
 
     suspend fun ensureActiveChallenge(userId: Int, defaultUserName: String = ""): ChallengeEntity {
-        var challenge = challengeDao.getActiveChallenge(userId)
-        if (challenge == null) {
-            val newId = "challenge_u${userId}_${System.currentTimeMillis()}"
-            challenge = ChallengeEntity(
-                id = newId,
-                userId = userId,
-                userName = defaultUserName,
-                initialCapitalCents = 10000L,
-                currentBalanceCents = 10000L,
-                targetBalanceCents = 300000L,
-                tradeCount = 0,
-                challengeStarted = false
-            )
-            db.withTransaction {
-                challengeDao.insertOrUpdate(challenge)
-                initMilestonesForChallenge(newId)
-            }
-        } else if (challenge.userName.isBlank() && defaultUserName.isNotBlank()) {
-            val updated = challenge.copy(userName = defaultUserName)
-            challengeDao.insertOrUpdate(updated)
-            challenge = updated
+    var challenge = challengeDao.getActiveChallenge(userId)
+
+    if (challenge == null) {
+        val newId = "challenge_u${userId}_${System.currentTimeMillis()}"
+
+        val newChallenge = ChallengeEntity(
+            id = newId,
+            userId = userId,
+            userName = defaultUserName,
+            initialCapitalCents = 10000L,
+            currentBalanceCents = 10000L,
+            targetBalanceCents = 300000L,
+            tradeCount = 0,
+            challengeStarted = false
+        )
+
+        db.withTransaction {
+            challengeDao.insertOrUpdate(newChallenge)
+            initMilestonesForChallenge(newId)
         }
-        return challenge
+
+        challenge = newChallenge
+
+    } else if (challenge.userName.isBlank() && defaultUserName.isNotBlank()) {
+        val updated = challenge.copy(userName = defaultUserName)
+        challengeDao.insertOrUpdate(updated)
+        challenge = updated
     }
+
+    return challenge
+}
 
     private suspend fun initMilestonesForChallenge(challengeId: String) {
         val list = mutableListOf<MilestoneEntity>()
